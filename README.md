@@ -31,7 +31,7 @@ Laravel 5.6+
 | FilterStripTag | removes HTML and PHP tags, keeps what you want |
 | FilterToLower | lowercase |
 | FilterToUpper | uppercase |
-| FilterTrim*** | trim leading and trailing white space |
+| FilterTrim | trim leading and trailing white space |
 
 ## How to use
 
