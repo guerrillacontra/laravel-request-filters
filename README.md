@@ -32,7 +32,7 @@ Laravel 5.6+
 | FilterToLower | Converts to lowercase |
 | FilterToUpper | Converts to uppercase |
 | FilterTrim | Trim leading and trailing white space |
-| FilterDate | Format into a specified Carbon date string |
+| FilterDate | Format into a specified Carbon date string see [Carbon docs](https://carbon.nesbot.com/docs/#api-formatting)  |
 
 ## How to use
 
