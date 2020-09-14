@@ -18,20 +18,21 @@ Laravel 5.6+
 - Format input with a collection of pre-made and tested Filters
 - ```FilterRequests``` trait that easily plugs into a ```FormRequest``` and enable filtering
 - ```FilterInterface``` that allows developers to easily implement their own filters
-- ```RequeastFiltering``` tool that can apply the same filters to any string you pass in
+- ```RequestFiltering``` tool that can apply the same filters to any string you pass in
 - Type safety, no string literals to remember, just standard classes and no services
 
 ## Included Filters
 
 | Filter class | Usage |
 | -------------| ------------- |
-| FilterCapitalize | capitalizes the first character of each word |
-| FilterEscape | escapes characters based on php's own validator constants |
-| FilterNumeric | removes all non-numerical characters |
-| FilterStripTag | removes HTML and PHP tags, keeps what you want |
-| FilterToLower | lowercase |
-| FilterToUpper | uppercase |
-| FilterTrim | trim leading and trailing white space |
+| FilterCapitalize | Capitalizes the first character of each word |
+| FilterEscape | Escapes characters based on php's own validator constants |
+| FilterNumeric | Removes all non-numerical characters |
+| FilterStripTag | Removes HTML and PHP tags, keeps what you want |
+| FilterToLower | Converts to lowercase |
+| FilterToUpper | Converts to uppercase |
+| FilterTrim | Trim leading and trailing white space |
+| FilterDate | Format into a specified Carbon date string |
 
 ## How to use
 

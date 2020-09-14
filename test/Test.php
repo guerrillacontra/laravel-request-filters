@@ -1,6 +1,8 @@
 <?php
 
+use Carbon\Carbon;
 use Guerrilla\RequestFilters\Filters\FilterCapitalize;
+use Guerrilla\RequestFilters\Filters\FilterDate;
 use Guerrilla\RequestFilters\Filters\FilterEscape;
 use Guerrilla\RequestFilters\Filters\FilterNumeric;
 use Guerrilla\RequestFilters\Filters\FilterStripTags;
@@ -12,13 +14,14 @@ use PHPUnit\Framework\TestCase;
 
 class Test extends TestCase
 {
-    public function test_capitalize(){
+    public function test_capitalize()
+    {
 
         $inputs = [
             'forename' => 'james',
         ];
 
-        $filters =[
+        $filters = [
             'forename' => [new FilterCapitalize()]
         ];
 
@@ -27,13 +30,14 @@ class Test extends TestCase
         $this->assertEquals('James', $filtered_inputs['forename']);
     }
 
-    public function test_to_lower(){
+    public function test_to_lower()
+    {
 
         $inputs = [
             'forename' => 'JaMes'
         ];
 
-        $filters =[
+        $filters = [
             'forename' => [new FilterToLower()]
         ];
 
@@ -42,13 +46,14 @@ class Test extends TestCase
         $this->assertEquals('james', $filtered_inputs['forename']);
     }
 
-    public function test_to_upper(){
+    public function test_to_upper()
+    {
 
         $inputs = [
             'forename' => 'JaMes'
         ];
 
-        $filters =[
+        $filters = [
             'forename' => [new FilterToUpper()]
         ];
 
@@ -57,13 +62,14 @@ class Test extends TestCase
         $this->assertEquals('JAMES', $filtered_inputs['forename']);
     }
 
-    public function test_trim(){
+    public function test_trim()
+    {
 
         $inputs = [
             'forename' => ' james '
         ];
 
-        $filters =[
+        $filters = [
             'forename' => [new FilterTrim()]
         ];
 
@@ -72,13 +78,14 @@ class Test extends TestCase
         $this->assertEquals('james', $filtered_inputs['forename']);
     }
 
-    public function test_extract_numerics(){
+    public function test_extract_numerics()
+    {
 
         $inputs = [
             'address' => '221b Baker Street, London, UK, NW1 6XE'
         ];
 
-        $filters =[
+        $filters = [
             'address' => [new FilterNumeric()]
         ];
 
@@ -87,13 +94,14 @@ class Test extends TestCase
         $this->assertEquals('22116', $filtered_inputs['address']);
     }
 
-    public function test_escape_xss(){
+    public function test_escape_xss()
+    {
 
         $inputs = [
             'naughty' => "<script>alert('XSS')</script>"
         ];
 
-        $filters =[
+        $filters = [
             'naughty' => [new FilterEscape([FILTER_SANITIZE_STRING])]
         ];
 
@@ -102,14 +110,15 @@ class Test extends TestCase
         $this->assertEquals('alert(&#39;XSS&#39;)', $filtered_inputs['naughty']);
     }
 
-    public function test_strip_tags(){
+    public function test_strip_tags()
+    {
 
         $inputs = [
             'tags' => '<p>Test paragraph.</p><!-- Comment --> <a href="#fragment">Other text</a>',
-            'extra' =>'<p>Test paragraph.</p><!-- Comment --> <a href="#fragment">Other text</a>'
+            'extra' => '<p>Test paragraph.</p><!-- Comment --> <a href="#fragment">Other text</a>'
         ];
 
-        $filters =[
+        $filters = [
             'tags' => [new FilterStripTags()],
             'extra' => [new FilterStripTags('<p><a>')]
         ];
@@ -119,4 +128,24 @@ class Test extends TestCase
         $this->assertEquals('Test paragraph. Other text', $filtered_inputs['tags']);
         $this->assertEquals('<p>Test paragraph.</p> <a href="#fragment">Other text</a>', $filtered_inputs['extra']);
     }
+
+
+    public function test_date()
+    {
+        $inputs = [
+            'date1' => '07/11/1990',
+            'date2' => '7th November 1990'
+        ];
+
+        $filters = [
+            'date1' => [new FilterDate('d/m/Y')],
+            'date2' => [new FilterDate('jS M Y')]
+        ];
+
+        $filtered_inputs = RequestFiltering::filter($inputs, $filters);
+
+        $this->assertEquals(Carbon::create(1990, 11, 7)->toDateString(), $filtered_inputs['date1']);
+        $this->assertEquals(Carbon::create(1990, 11, 7)->toDateString(), $filtered_inputs['date2']);
+    }
+
 }
