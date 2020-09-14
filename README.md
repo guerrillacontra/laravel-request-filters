@@ -59,7 +59,7 @@ public function rules():array {
 }
 
 public function filters():array {
-    return[
+    return [
         'email' => [new FilterTrim, new FilterEscape(FILTER_SANITIZE_EMAIL)],
         'name' => [new FilterTrim, new FilterEscape(FILTER_SANITIZE_STRING), new FilterCapitalize],
         'meta.*.attributes' => [....]//YES! This library does support nesting 
@@ -80,7 +80,14 @@ echo $input['email'];
 You can optionally just run the filter on any string you like outside of the request:
 
 ```php
-$filtered_result = RequestFiltering::filter('email', [new FilterTrim, new FilterEscape(FILTER_SANITIZE_EMAIL)]);
+$filtered_result = RequestFiltering::filter(
+                  $input,
+                  [
+                 'email' => [new FilterTrim, new FilterEscape(FILTER_SANITIZE_EMAIL)],
+                 'name' => [new FilterTrim, new FilterEscape(FILTER_SANITIZE_STRING), new FilterCapitalize],
+                  'meta.*.attributes' => [....] 
+                  ]
+);
 ```
 
 ## Future
