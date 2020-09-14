@@ -20,6 +20,7 @@ Laravel 5.6+
 - ```FilterInterface``` that allows developers to easily implement their own filters
 - ```RequestFiltering``` tool that can apply the same filters to any string you pass in
 - Type safety, no string literals to remember, just standard classes and no services
+- [Nested AND array filtering just like Laravel's own validator :ok_hand:](https://laravel.com/docs/7.x/validation#validating-arrays)
 
 ## Included Filters
 
@@ -52,18 +53,19 @@ Describe your filters:
 public function rules():array {
     return [
         'email' => ['required', 'email', 'bail'],
-        'name' => ['required']
+        'name' => ['required']',
+        'meta.*.attributes' =>['array']
     ];
 }
 
 public function filters():array {
     return[
         'email' => [new FilterTrim, new FilterEscape(FILTER_SANITIZE_EMAIL)],
-        'name' => [new FilterTrim, new FilterEscape(FILTER_SANITIZE_STRING), new FilterCapitalize]
+        'name' => [new FilterTrim, new FilterEscape(FILTER_SANITIZE_STRING), new FilterCapitalize],
+        'meta.*.attributes' => [....]//YES! This library does support nesting 
     ];
 }
 ```
-
 
 
 Validate the request as per normal but, the results will be filtered :)

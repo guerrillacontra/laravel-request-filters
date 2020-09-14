@@ -148,4 +148,47 @@ class Test extends TestCase
         $this->assertEquals(Carbon::create(1990, 11, 7)->toDateString(), $filtered_inputs['date2']);
     }
 
+
+    public function test_nested(){
+        $inputs = [
+            'company'=>'test inc',
+            'meta'=>[
+                'age'=>'a22',
+                'extra'=>[
+                    'code'=>'a12345a'
+                ]
+            ],
+            'employees'=>[
+                [
+                    'name'=>' james',
+                    'role'=>'laravel'
+                ],
+                [
+                    'name'=>'claire ',
+                    'role'=>'dark arts '
+                ]
+            ]
+        ];
+
+        $filters = [
+            'company' => [new FilterToUpper()],
+            'meta.age'=> [new FilterNumeric()],
+            'meta.extra.code' => [new FilterNumeric()],
+            'employees.*.name' => [new FilterToUpper(), new FilterTrim()],
+            'employees.*.role' => [new FilterToUpper(), new FilterTrim()],
+            'employees.*.doesntexist'=>[new FilterTrim()]//ensures optional fields work
+
+        ];
+
+        $filtered_inputs = RequestFiltering::filter($inputs, $filters);
+
+        $this->assertEquals('TEST INC', $filtered_inputs['company']);
+        $this->assertEquals('22', $filtered_inputs['meta']['age']);
+        $this->assertEquals('12345', $filtered_inputs['meta']['extra']['code']);
+        $this->assertEquals('JAMES', $filtered_inputs['employees'][0]['name']);
+        $this->assertEquals('CLAIRE', $filtered_inputs['employees'][1]['name']);
+        $this->assertEquals('LARAVEL', $filtered_inputs['employees'][0]['role']);
+        $this->assertEquals('DARK ARTS', $filtered_inputs['employees'][1]['role']);
+    }
+
 }
