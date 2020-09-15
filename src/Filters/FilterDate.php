@@ -23,7 +23,7 @@ class FilterDate implements FilterInterface
      * 07/11/1990 = d/m/Y
      * 7th November 1990 = jS M Y
      */
-    function __construct(string $format)
+    function __construct(string $format = null)
     {
         $this->format = $format;
     }

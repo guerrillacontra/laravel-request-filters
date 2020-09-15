@@ -87,4 +87,17 @@ class InputFilter
         return $inputs;
     }
 
+    public static function filterFromString(array $inputs, array $filters_as_text, array $custom_filters = null) : array{
+
+        $filters = [];
+
+        foreach($filters_as_text as $key => $text_array){
+
+            $filters[$key] = FilterParser::parseFilterString($text_array, $custom_filters) ;
+
+        }
+
+        return self::filter($inputs, $filters);
+    }
+
 }

@@ -15,7 +15,7 @@ use Guerrilla\RequestFilters\Filters\Sanitization\FilterSantizeText;
 use Guerrilla\RequestFilters\InputFilter;
 use PHPUnit\Framework\TestCase;
 
-class Test extends TestCase
+class FilterTest extends TestCase
 {
     public function test_capitalize()
     {
@@ -243,21 +243,5 @@ class Test extends TestCase
     }
 
 
-    public function test_filter_array_of_string_literals()
-    {
-        $inputs = [
-            'date1' => '07/11/1990',
-            'date2' => '7th November 1990'
-        ];
 
-        $filters = [
-            'date1' => [new FilterDate('d/m/Y')],
-            'date2' => [new FilterDate('jS M Y')]
-        ];
-
-        $filtered_inputs = InputFilter::filter($inputs, $filters);
-
-        $this->assertEquals(Carbon::create(1990, 11, 7)->toDateString(), $filtered_inputs['date1']);
-        $this->assertEquals(Carbon::create(1990, 11, 7)->toDateString(), $filtered_inputs['date2']);
-    }
 }
