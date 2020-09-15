@@ -23,8 +23,14 @@ class FilterStripTags implements FilterInterface
         $this->allowable_tags = $allowable_tags;
     }
 
-    function applyFilter(string $input): string
+    function applyFilter(string $input, array $params = null): string
     {
-        return strip_tags($input, $this->allowable_tags);
+        $allowables = $this->allowable_tags;
+
+        if(!empty($params)){
+            $allowables = $params[0];
+        }
+
+        return strip_tags($input, $allowables);
     }
 }

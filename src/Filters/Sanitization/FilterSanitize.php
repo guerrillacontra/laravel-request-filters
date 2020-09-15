@@ -53,9 +53,15 @@ class FilterSanitize implements FilterInterface
         return $this;
     }
 
-    function applyFilter(string $input): string
+    function applyFilter(string $input, array $params = null): string
     {
-        foreach($this->filters as $filter){
+        $filters = $this->filters;
+
+        if(!empty($params)){
+            $filters = array_merge($filters, $params);
+        }
+
+        foreach($filters as $filter){
             $input = filter_var($input, $filter);
         }
         return $input;

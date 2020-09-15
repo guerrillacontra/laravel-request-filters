@@ -12,7 +12,7 @@ use Guerrilla\RequestFilters\Filters\FilterTrim;
 use Guerrilla\RequestFilters\Filters\Sanitization\FilterSanitizeEmail;
 use Guerrilla\RequestFilters\Filters\Sanitization\FilterSanitizeEncoded;
 use Guerrilla\RequestFilters\Filters\Sanitization\FilterSantizeText;
-use Guerrilla\RequestFilters\RequestFiltering;
+use Guerrilla\RequestFilters\InputFilter;
 use PHPUnit\Framework\TestCase;
 
 class Test extends TestCase
@@ -28,7 +28,7 @@ class Test extends TestCase
             'forename' => [new FilterCapitalize()]
         ];
 
-        $filtered_inputs = RequestFiltering::filter($inputs, $filters);
+        $filtered_inputs = InputFilter::filter($inputs, $filters);
 
         $this->assertEquals('James', $filtered_inputs['forename']);
     }
@@ -44,7 +44,7 @@ class Test extends TestCase
             'forename' => [new FilterToLower()]
         ];
 
-        $filtered_inputs = RequestFiltering::filter($inputs, $filters);
+        $filtered_inputs = InputFilter::filter($inputs, $filters);
 
         $this->assertEquals('james', $filtered_inputs['forename']);
     }
@@ -60,7 +60,7 @@ class Test extends TestCase
             'forename' => [new FilterToUpper()]
         ];
 
-        $filtered_inputs = RequestFiltering::filter($inputs, $filters);
+        $filtered_inputs = InputFilter::filter($inputs, $filters);
 
         $this->assertEquals('JAMES', $filtered_inputs['forename']);
     }
@@ -76,7 +76,7 @@ class Test extends TestCase
             'forename' => [new FilterTrim()]
         ];
 
-        $filtered_inputs = RequestFiltering::filter($inputs, $filters);
+        $filtered_inputs = InputFilter::filter($inputs, $filters);
 
         $this->assertEquals('james', $filtered_inputs['forename']);
     }
@@ -92,7 +92,7 @@ class Test extends TestCase
             'address' => [new FilterNumeric()]
         ];
 
-        $filtered_inputs = RequestFiltering::filter($inputs, $filters);
+        $filtered_inputs = InputFilter::filter($inputs, $filters);
 
         $this->assertEquals('22116', $filtered_inputs['address']);
     }
@@ -108,7 +108,7 @@ class Test extends TestCase
             'naughty' => [new FilterSanitize([FILTER_SANITIZE_STRING])]
         ];
 
-        $filtered_inputs = RequestFiltering::filter($inputs, $filters);
+        $filtered_inputs = InputFilter::filter($inputs, $filters);
 
         $this->assertEquals('alert(&#39;XSS&#39;)', $filtered_inputs['naughty']);
     }
@@ -124,7 +124,7 @@ class Test extends TestCase
             'email' => [new FilterSanitizeEmail()]
         ];
 
-        $filtered_inputs = RequestFiltering::filter($inputs, $filters);
+        $filtered_inputs = InputFilter::filter($inputs, $filters);
 
         $this->assertEquals("test@test.comscriptalert'oops'script", $filtered_inputs['email']);
     }
@@ -140,7 +140,7 @@ class Test extends TestCase
             'naughty' => [new FilterSantizeText()]
         ];
 
-        $filtered_inputs = RequestFiltering::filter($inputs, $filters);
+        $filtered_inputs = InputFilter::filter($inputs, $filters);
 
         $this->assertEquals('alert(&#39;XSS&#39;)', $filtered_inputs['naughty']);
     }
@@ -156,7 +156,7 @@ class Test extends TestCase
             'encoded' => [new FilterSanitizeEncoded()]
         ];
 
-        $filtered_inputs = RequestFiltering::filter($inputs, $filters);
+        $filtered_inputs = InputFilter::filter($inputs, $filters);
 
         $this->assertEquals('http%3A%2F%2Fwww.google.com', $filtered_inputs['encoded']);
     }
@@ -174,7 +174,7 @@ class Test extends TestCase
             'extra' => [new FilterStripTags('<p><a>')]
         ];
 
-        $filtered_inputs = RequestFiltering::filter($inputs, $filters);
+        $filtered_inputs = InputFilter::filter($inputs, $filters);
 
         $this->assertEquals('Test paragraph. Other text', $filtered_inputs['tags']);
         $this->assertEquals('<p>Test paragraph.</p> <a href="#fragment">Other text</a>', $filtered_inputs['extra']);
@@ -193,7 +193,7 @@ class Test extends TestCase
             'date2' => [new FilterDate('jS M Y')]
         ];
 
-        $filtered_inputs = RequestFiltering::filter($inputs, $filters);
+        $filtered_inputs = InputFilter::filter($inputs, $filters);
 
         $this->assertEquals(Carbon::create(1990, 11, 7)->toDateString(), $filtered_inputs['date1']);
         $this->assertEquals(Carbon::create(1990, 11, 7)->toDateString(), $filtered_inputs['date2']);
@@ -231,7 +231,7 @@ class Test extends TestCase
 
         ];
 
-        $filtered_inputs = RequestFiltering::filter($inputs, $filters);
+        $filtered_inputs = InputFilter::filter($inputs, $filters);
 
         $this->assertEquals('TEST INC', $filtered_inputs['company']);
         $this->assertEquals('22', $filtered_inputs['meta']['age']);
@@ -242,4 +242,22 @@ class Test extends TestCase
         $this->assertEquals('DARK ARTS', $filtered_inputs['employees'][1]['role']);
     }
 
+
+    public function test_filter_array_of_string_literals()
+    {
+        $inputs = [
+            'date1' => '07/11/1990',
+            'date2' => '7th November 1990'
+        ];
+
+        $filters = [
+            'date1' => [new FilterDate('d/m/Y')],
+            'date2' => [new FilterDate('jS M Y')]
+        ];
+
+        $filtered_inputs = InputFilter::filter($inputs, $filters);
+
+        $this->assertEquals(Carbon::create(1990, 11, 7)->toDateString(), $filtered_inputs['date1']);
+        $this->assertEquals(Carbon::create(1990, 11, 7)->toDateString(), $filtered_inputs['date2']);
+    }
 }

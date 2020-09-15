@@ -42,7 +42,7 @@ trait FilterRequests {
         $inputs = $this->input();
         $filters = $this->filters();
 
-        $filtered_inputs = RequestFiltering::filter($inputs, $filters);
+        $filtered_inputs = InputFilter::filter($inputs, $filters);
 
         $this->merge($filtered_inputs);
 

@@ -10,7 +10,7 @@ namespace Guerrilla\RequestFilters\Filters;
  */
 class FilterNumeric implements FilterInterface
 {
-    function applyFilter(string $input): string
+    function applyFilter(string $input, array $params = null): string
     {
         return preg_replace('/[^0-9]/si', '', $input);
     }

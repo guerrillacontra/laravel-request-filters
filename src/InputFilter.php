@@ -7,7 +7,7 @@ namespace Guerrilla\RequestFilters;
  * Class RequestFiltering
  * @package Guerrilla\RequestFilters
  */
-class RequestFiltering
+class InputFilter
 {
 
     /**
@@ -86,4 +86,5 @@ class RequestFiltering
 
         return $inputs;
     }
+
 }

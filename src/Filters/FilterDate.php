@@ -31,9 +31,15 @@ class FilterDate implements FilterInterface
     /**
      * @inheritDoc
      */
-    function applyFilter(string $input): string
+    function applyFilter(string $input, array $params = null): string
     {
-        if (empty($this->format)) return $input;
+        $format = $this->format;
+
+        if(!empty($params)){
+            $format = $params[0];
+        }
+
+        if (empty($format)) return $input;
 
         $c_date = Carbon::createFromFormat($this->format, $input);
 

@@ -16,7 +16,7 @@ class FilterSanitizeEncoded implements FilterInterface
     /**
      * @inheritDoc
      */
-    function applyFilter(string $input): string
+    function applyFilter(string $input, array $params = null): string
     {
         return filter_var($input, FILTER_SANITIZE_ENCODED, FILTER_FLAG_STRIP_HIGH);
     }
