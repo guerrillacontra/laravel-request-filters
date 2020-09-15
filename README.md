@@ -1,4 +1,8 @@
+
 # Laravel request filters
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/guerrilla/laravel-request-filters.svg?style=flat-square)](https://packagist.org/packages/guerrilla/laravel-request-filters)
+[![Total Downloads](https://img.shields.io/packagist/dt/guerrilla/laravel-request-filters.svg?style=flat-square)](https://packagist.org/packages/guerrilla/laravel-request-filters)
 
 ## About
 
@@ -17,17 +21,20 @@ Laravel 5.6+
 
 - Format input with a collection of pre-made and tested Filters
 - ```FilterRequests``` trait that easily plugs into a ```FormRequest``` and enable filtering
-- ```FilterInterface``` that allows developers to easily implement their own filters
+- ```InputFilter``` that allows developers to easily implement their own filters
 - ```RequestFiltering``` tool that can apply the same filters to any string you pass in
-- Type safety, no string literals to remember, just standard classes and no services
 - [Nested AND array filtering just like Laravel's own validator :ok_hand:](https://laravel.com/docs/7.x/validation#validating-arrays)
+- String based filtering similar to Laravel's validator + custom parsable filters
 
 ## Included Filters
 
 | Filter class | Usage |
 | -------------| ------------- |
 | FilterCapitalize | Capitalizes the first character of each word |
-| FilterEscape | Escapes characters based on php's own validator constants |
+| FilterSanitize | Escapes characters based on php's own validator constants |
+| FilterSanitizeEmail | Sanitizes email |
+| FilterSanitizeText | Sanitizes text generically |
+| FilterSanitizeEncoded | URL Encodes text |
 | FilterNumeric | Removes all non-numerical characters |
 | FilterStripTag | Removes HTML and PHP tags, keeps what you want |
 | FilterToLower | Converts to lowercase |
@@ -35,40 +42,69 @@ Laravel 5.6+
 | FilterTrim | Trim leading and trailing white space |
 | FilterDate | Format into a specified Carbon date string see [Carbon docs](https://carbon.nesbot.com/docs/#api-formatting)  |
 
+## Included Filters (as string literals)
+
+| Filter class | Usage |
+| -------------| ------------- |
+| 'capitalize' | Capitalizes the first character of each word |
+| 'email' | Sanitizes email |
+| 'sanitize' | Sanitizes text generically |
+| 'encode' | URL Encodes text |
+| 'number' | Removes all non-numerical characters |
+| 'strip' | Removes HTML and PHP tags, keeps what you want |
+| 'lowercase' | Converts to lowercase |
+| 'uppercase' | Converts to uppercase |
+| 'trim' | Trim leading and trailing white space |
+| 'date' | Format into a specified Carbon date string see [Carbon docs](https://carbon.nesbot.com/docs/#api-formatting)  |
+
+You can make your own custom filters by implementing the ```FilterInterface``` :)
+
 ## How to use
 
 Import via composer:
 
 ```composer require guerrilla/laravel-request-filters```
 
-In your FormRequest use the following trait:
+In your [FormRequest](https://laravel.com/docs/7.x/validation#form-request-validation) use the following trait:
 
 ```use Guerrilla\RequestFilters\FilterRequests```
 
-Describe your filters:
+Describe your filters (Laravel rules included for familiarisation):
 
 ```php
-//rules included for familiarisation
-
 public function rules():array {
     return [
         'email' => ['required', 'email', 'bail'],
-        'name' => ['required']',
-        'meta.*.attributes' =>['array']
-    ];
-}
-
-public function filters():array {
-    return [
-        'email' => [new FilterTrim, new FilterEscape(FILTER_SANITIZE_EMAIL)],
-        'name' => [new FilterTrim, new FilterEscape(FILTER_SANITIZE_STRING), new FilterCapitalize],
-        'meta.*.attributes' => [....]//YES! This library does support nesting 
+        'name' => ['required'],
+        'employees.*.name' =>['required']
     ];
 }
 ```
 
+```php
+public function filters():array {
+    return [
+        'email' => [new FilterTrim, new FilterSanitizeEmail],
+        'name' => [new FilterTrim, new FilterSanitizeText, new FilterCapitalize],
+        'employees.*.name' => [new FilterCapitalize],
+        'date' => [new FilterTrim, new FilterDate('d/m/Y')]
+    ];
+}
+```
 
-Validate the request as per normal but, the results will be filtered :)
+Or use the string based syntax:
+```php
+public function filters():array {
+    return [
+        'email' => 'trim|email',
+        'name' => 'trim|sanitize|capitalize',
+        'employees.*.name' => 'capitalize',
+        'date' => 'trim|date:d/m/Y'
+    ];
+}
+```
+
+Validate the request as per normal but, the results will be now filtered :)
 
 ```php
 $input = $request->validated();
@@ -80,23 +116,37 @@ echo $input['email'];
 You can optionally just run the filter on any string you like outside of the request:
 
 ```php
-$filtered_result = RequestFiltering::filter(
-                  $input,
+$validated_input = $request->validate([...]);
+
+$filtered_result = InputFilter::filter(
+                  $validated_input,
                   [
-                 'email' => [new FilterTrim, new FilterEscape(FILTER_SANITIZE_EMAIL)],
-                 'name' => [new FilterTrim, new FilterEscape(FILTER_SANITIZE_STRING), new FilterCapitalize],
-                  'meta.*.attributes' => [....] 
+                  'email' => [new FilterTrim],
+                  'name' => [new FilterTrim],
+                  'meta.*.attributes' => [new MyCustom1Filter(1), new MyCustom2Filter(2)] 
                   ]
 );
 ```
 
-## Future
+Using your own custom filtering rules to the string parsing syntax is easy!
+```php
+$validated_input = $request->validate([...]);
 
-Any ideas or changes are welcome, I plan to add text based filtering rules similar to laravels
-standard associated validators (e.g ```'trim|escape|tolower'```) as well as plenty of other Filters.
+$custom_filters = [
+    'custom1' => MyCustom1Filter::class,
+    'custom2' => MyCustom2Filter::class
+];
 
-If there is a filter you would like to see please let me know.
-
+$filtered_result = InputFilter::filterFromString(
+                  $validated_input,
+                  [
+                  'email' => 'trim',
+                  'name' => 'trim',
+                  'meta.*.attributes' => 'custom1:1|custom2:2'
+                  ],
+                  $custom_filters
+);
+```
 
 ## License
 
