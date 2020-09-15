@@ -87,6 +87,32 @@ class InputFilter
         return $inputs;
     }
 
+    /**
+     * Filter on a string representation of an array of filters.
+     * @param array $inputs an associative array of request inputs key => value
+     *
+     * [
+     *  'key' => 'value'
+     * ]
+     * @param array $filters_as_text An associative array of filters where each filter value is a string representing
+     * the filters you want similar to Laravels validation.
+     *
+     * [
+     *  'key' => 'trim|uppercase|date:d m Y|strip'
+     * ]
+     * @param array|null $custom_filters An associated array of custom filters that can be dynamically instantiated along with the native
+     * filters found in FilterParser::getSupportedFilters()
+     *
+     * [
+     *  'yourcustomfilter' => CustomFilter::class
+     * ]
+     * @return array an associadtive array of filtered inputs
+     *
+     * [
+     *  'key' => 'value'
+     * ]
+     * @throws \Exception For Invalid filter text or custom filter data
+     */
     public static function filterFromString(array $inputs, array $filters_as_text, array $custom_filters = null) : array{
 
         $filters = [];
