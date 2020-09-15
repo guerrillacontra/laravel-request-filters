@@ -1,8 +1,9 @@
 <?php
 
 
-namespace Guerrilla\RequestFilters\Filters;
+namespace Guerrilla\RequestFilters\Filters\Sanitization;
 
+use Guerrilla\RequestFilters\Filters\FilterInterface;
 
 /**
  * A request filter that can escape text in various ways using the native php text filtering
@@ -15,7 +16,7 @@ namespace Guerrilla\RequestFilters\Filters;
  *
  * @package Guerrilla\RequestFilters\Filters
  */
-class FilterEscape implements FilterInterface
+class FilterSanitize implements FilterInterface
 {
     /**
      * @var int[]

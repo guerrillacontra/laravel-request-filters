@@ -3,12 +3,15 @@
 use Carbon\Carbon;
 use Guerrilla\RequestFilters\Filters\FilterCapitalize;
 use Guerrilla\RequestFilters\Filters\FilterDate;
-use Guerrilla\RequestFilters\Filters\FilterEscape;
+use Guerrilla\RequestFilters\Filters\Sanitization\FilterSanitize;
 use Guerrilla\RequestFilters\Filters\FilterNumeric;
 use Guerrilla\RequestFilters\Filters\FilterStripTags;
 use Guerrilla\RequestFilters\Filters\FilterToLower;
 use Guerrilla\RequestFilters\Filters\FilterToUpper;
 use Guerrilla\RequestFilters\Filters\FilterTrim;
+use Guerrilla\RequestFilters\Filters\Sanitization\FilterSanitizeEmail;
+use Guerrilla\RequestFilters\Filters\Sanitization\FilterSanitizeEncoded;
+use Guerrilla\RequestFilters\Filters\Sanitization\FilterSantizeText;
 use Guerrilla\RequestFilters\RequestFiltering;
 use PHPUnit\Framework\TestCase;
 
@@ -94,7 +97,7 @@ class Test extends TestCase
         $this->assertEquals('22116', $filtered_inputs['address']);
     }
 
-    public function test_escape_xss()
+    public function test_sanitize_xss()
     {
 
         $inputs = [
@@ -102,12 +105,60 @@ class Test extends TestCase
         ];
 
         $filters = [
-            'naughty' => [new FilterEscape([FILTER_SANITIZE_STRING])]
+            'naughty' => [new FilterSanitize([FILTER_SANITIZE_STRING])]
         ];
 
         $filtered_inputs = RequestFiltering::filter($inputs, $filters);
 
         $this->assertEquals('alert(&#39;XSS&#39;)', $filtered_inputs['naughty']);
+    }
+
+    public function test_sanitize_email()
+    {
+
+        $inputs = [
+            'email' => "test@test.com<script>alert('oops')</script>"
+        ];
+
+        $filters = [
+            'email' => [new FilterSanitizeEmail()]
+        ];
+
+        $filtered_inputs = RequestFiltering::filter($inputs, $filters);
+
+        $this->assertEquals("test@test.comscriptalert'oops'script", $filtered_inputs['email']);
+    }
+
+    public function test_sanitize_text()
+    {
+
+        $inputs = [
+            'naughty' => "<script>alert('XSS')</script>"
+        ];
+
+        $filters = [
+            'naughty' => [new FilterSantizeText()]
+        ];
+
+        $filtered_inputs = RequestFiltering::filter($inputs, $filters);
+
+        $this->assertEquals('alert(&#39;XSS&#39;)', $filtered_inputs['naughty']);
+    }
+
+    public function test_sanitize_encoded()
+    {
+
+        $inputs = [
+            'encoded' => "http://www.google.com"
+        ];
+
+        $filters = [
+            'encoded' => [new FilterSanitizeEncoded()]
+        ];
+
+        $filtered_inputs = RequestFiltering::filter($inputs, $filters);
+
+        $this->assertEquals('http%3A%2F%2Fwww.google.com', $filtered_inputs['encoded']);
     }
 
     public function test_strip_tags()
