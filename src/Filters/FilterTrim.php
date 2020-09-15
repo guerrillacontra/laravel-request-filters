@@ -11,7 +11,7 @@ namespace Guerrilla\RequestFilters\Filters;
 class FilterTrim implements FilterInterface
 {
 
-    function applyFilter(string $input, array $params = null): string
+    function applyFilter(string $input): string
     {
         return trim($input);
     }

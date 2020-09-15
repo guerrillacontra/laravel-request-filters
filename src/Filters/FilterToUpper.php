@@ -11,7 +11,7 @@ namespace Guerrilla\RequestFilters\Filters;
 class FilterToUpper implements FilterInterface
 {
 
-    function applyFilter(string $input, array $params = null): string
+    function applyFilter(string $input): string
     {
         return mb_strtoupper($input);
     }

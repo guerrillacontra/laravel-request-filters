@@ -31,13 +31,9 @@ class FilterDate implements FilterInterface
     /**
      * @inheritDoc
      */
-    function applyFilter(string $input, array $params = null): string
+    function applyFilter(string $input): string
     {
         $format = $this->format;
-
-        if(!empty($params)){
-            $format = $params[0];
-        }
 
         if (empty($format)) return $input;
 
